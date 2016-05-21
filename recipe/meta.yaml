@@ -19,6 +19,7 @@ requirements:
     - libpng 1.6*
     - zlib 1.2*
     - xz 5.0.*
+    - toolchain
 
   run:
     - libpng 1.6*
