@@ -10,7 +10,7 @@ source:
   md5: d04fba2d9245e661f245de0577f48a33
 
 build:
-  number: 2
+  number: 3
   detect_binary_files_with_prefix: true
   skip: true                             # [win]
 
@@ -19,6 +19,8 @@ requirements:
     - libpng 1.6*
     - zlib 1.2*
     - xz 5.0.*
+    - toolchain
+
   run:
     - libpng 1.6*
     - zlib 1.2*
@@ -30,6 +32,7 @@ test:
     - test -e $PREFIX/lib/libsox.a       # [unix]
     - test -e $PREFIX/lib/libsox.so      # [linux]
     - test -e $PREFIX/lib/libsox.dylib   # [osx]
+    - otool -L $PREFIX/lib/libsox.dylib  # [osx]
 
 
 about:
