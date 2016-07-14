@@ -10,21 +10,21 @@ source:
   md5: d04fba2d9245e661f245de0577f48a33
 
 build:
-  number: 4
+  number: 5
   detect_binary_files_with_prefix: true
-  skip: true                             # [win]
+  skip: true  # [win]
 
 requirements:
   build:
-    - libpng 1.6*
-    - zlib 1.2*
-    - xz 5.0.*
+    - libpng 1.6.23
+    - zlib 1.2.*
+    - xz 5.2.*
     - toolchain
 
   run:
-    - libpng 1.6*
-    - zlib 1.2*
-    - xz 5.0.*
+    - libpng 1.6.23
+    - zlib 1.2.*
+    - xz 5.2.*
 
 test:
   commands:
