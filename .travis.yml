@@ -1,13 +1,15 @@
 # This file was generated automatically from conda-smithy. To update this configuration,
 # update the conda-forge.yaml and/or the recipe/meta.yaml.
 
-language: objective-c
+language: generic
+
+os: osx
 
 env:
   matrix:
     
     - LIBPNG_VERSION="1.6.22"
-    - LIBPNG_VERSION="1.6.23"
+    - LIBPNG_VERSION="1.6.24"
   global:
     # The BINSTAR_TOKEN secure variable. This is defined canonically in conda-forge.yml.
     - secure: "wTwKTlN/RcNbFNxJdrYgzBcyf+2TEHzi/YeXfjkhlZYn4j1XTLv4ggOxyvCUToufL2+BURjgc4cq8M7ccNWqq8atduY811yGH46OjaT/QHrOsfNG9+mw+PqS42gzk9sqTOfoTEOUDgLFqLrESUSqmVXckefupWCA6XoLa8QdIJeAuXHJE9ev45GaouVQQMfUr1h4F1/vzBijI73wEGxQwdZJdapOAjZzhLdGAy19tiMMKO6/NhUfNYupFdvicIp6bhC2Uw8usTHtvkkLwLRnjL6zuYoGS+ZBromUmJvYvfpsGYPY9ZaOj5hYfwJek5SLbo0g9Qsavyp4VSGSNChab8985CegTwh11QuVjbi2ISDiIOeBgY0n3kxUlu5D/RryQp+rGoiqa/ZbYXpd/HaX8N3stWt78bFFKhtMXTCBBcYxPUGPwG/PaZjqbKtwqd0RRsAY8j3OZS9IooYT4VUBBPmwudaFCr5au7CHbewwaUCcMCl8fIt3bUOOy0endLvZXvKZdJwziY1kw9VPR/ZcwOijTdIE+DO7MLki8LAvg2rKA0bQoBVWgPZlfj8ixG1C67cBJgCP9RSyP/U2kVLOXhVow3VenRxOL1eiIdBK288j7aEVJDfXinTmgY5f0sgs921y8Fpvng9K6MbVlUlD11Zysru/IOVhNVt1wNfuYqw="
@@ -27,16 +29,12 @@ install:
       bash $MINICONDA_FILE -b
 
       export PATH=/Users/travis/miniconda3/bin:$PATH
-
-      conda config --set show_channel_urls true
-      conda update --yes conda
-      conda install --yes conda-build=1.20.0 jinja2 anaconda-client
       conda config --add channels conda-forge
-      
+      conda config --set show_channel_urls true
+      conda install --yes --quiet conda-forge-build-setup
+      source run_conda_forge_build_setup
 
 script:
   - conda build ./recipe
-
-after_success:
 
   - ./ci_support/upload_or_check_non_existence.py ./recipe conda-forge --channel=main
