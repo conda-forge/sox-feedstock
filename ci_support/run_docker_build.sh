@@ -46,11 +46,11 @@ source run_conda_forge_build_setup
     export LIBPNG_VERSION="1.6.22"
     set +x
     conda build /recipe_root --quiet || exit 1
-    /feedstock_root/ci_support/upload_or_check_non_existence.py /recipe_root conda-forge --channel=main || exit 1
+    upload_or_check_non_existence /recipe_root conda-forge --channel=main || exit 1
 
     set -x
-    export LIBPNG_VERSION="1.6.24"
+    export LIBPNG_VERSION="1.6.26"
     set +x
     conda build /recipe_root --quiet || exit 1
-    /feedstock_root/ci_support/upload_or_check_non_existence.py /recipe_root conda-forge --channel=main || exit 1
+    upload_or_check_non_existence /recipe_root conda-forge --channel=main || exit 1
 EOF
