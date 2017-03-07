@@ -1,5 +1,5 @@
 {% set version = "14.4.2" %}
-{% set build_number = "7" %}
+{% set build_number = "8" %}
 
 {% set libpng_version = os.environ.get('LIBPNG_VERSION', '1.6.22').replace('"','')|string %}
 {% set build_string = "libpng{}_{}".format(libpng_version, build_number) %}
