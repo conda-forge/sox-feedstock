@@ -43,16 +43,7 @@ conda clean --lock
 conda install --yes --quiet conda-forge-build-setup
 source run_conda_forge_build_setup
 
-# Embarking on 2 case(s).
-    set -x
-    export LIBPNG_VERSION="1.6.27"
-    set +x
-    conda build /recipe_root --quiet || exit 1
-    upload_or_check_non_existence /recipe_root conda-forge --channel=main || exit 1
-
-    set -x
-    export LIBPNG_VERSION="1.6.28"
-    set +x
+# Embarking on 1 case(s).
     conda build /recipe_root --quiet || exit 1
     upload_or_check_non_existence /recipe_root conda-forge --channel=main || exit 1
 touch /feedstock_root/build_artefacts/conda-forge-build-done
