@@ -22,7 +22,7 @@ requirements:
     - toolchain
 
   run:
-    - libpng >=1.6.23,<1.7
+    - libpng >=1.6.28,<1.7
     - zlib 1.2.*
     - xz 5.2.*
 
