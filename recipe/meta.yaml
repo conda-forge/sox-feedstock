@@ -1,8 +1,4 @@
 {% set version = "14.4.2" %}
-{% set build_number = "7" %}
-
-{% set libpng_version = os.environ.get('LIBPNG_VERSION', '1.6.22').replace('"','')|string %}
-{% set build_string = "libpng{}_{}".format(libpng_version, build_number) %}
 
 package:
   name: sox
@@ -14,20 +10,19 @@ source:
   md5: d04fba2d9245e661f245de0577f48a33
 
 build:
-  number: {{ build_number }}
-  string: {{ build_string }}
+  number: 8
   detect_binary_files_with_prefix: true
   skip: true  # [win]
 
 requirements:
   build:
-    - libpng {{ libpng_version }}
+    - libpng >=1.6.28,<1.7
     - zlib 1.2.*
     - xz 5.2.*
     - toolchain
 
   run:
-    - libpng {{ libpng_version }}
+    - libpng >=1.6.28,<1.7
     - zlib 1.2.*
     - xz 5.2.*
 
@@ -49,3 +44,4 @@ extra:
   recipe-maintainers:
     - 183amir
     - alexbw
+    - sdvillal
