@@ -5,25 +5,24 @@ package:
   version: {{ version }}
 
 source:
-  fn: sox-{{ version }}.tar.gz
   url: http://sourceforge.net/projects/sox/files/sox/{{ version }}/sox-{{ version }}.tar.gz
   md5: d04fba2d9245e661f245de0577f48a33
 
 build:
-  number: 8
+  number: 9
   detect_binary_files_with_prefix: true
   skip: true  # [win]
 
 requirements:
   build:
-    - libpng >=1.6.28,<1.7
-    - zlib 1.2.*
+    - libpng >=1.6.22,<1.6.31
+    - zlib 1.2.11
     - xz 5.2.*
     - toolchain
 
   run:
-    - libpng >=1.6.28,<1.7
-    - zlib 1.2.*
+    - libpng >=1.6.22,<1.6.31
+    - zlib 1.2.11
     - xz 5.2.*
 
 test:
@@ -33,7 +32,8 @@ test:
     - test -e $PREFIX/lib/libsox.so      # [linux]
     - test -e $PREFIX/lib/libsox.dylib   # [osx]
     - otool -L $PREFIX/lib/libsox.dylib  # [osx]
-
+    - conda inspect linkages -p $PREFIX $PKG_NAME  # [not win]
+    - conda inspect objects -p $PREFIX $PKG_NAME  # [osx]
 
 about:
   home: http://sox.sourceforge.net/
