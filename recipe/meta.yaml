@@ -9,7 +9,7 @@ source:
   md5: d04fba2d9245e661f245de0577f48a33
 
 build:
-  number: 11
+  number: 1011
   detect_binary_files_with_prefix: true
   skip: true  # [win]
 
