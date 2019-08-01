@@ -21,12 +21,13 @@ requirements:
     - zlib
     - xz
     - lame  # [not win]
+    - mad  # [not win]    
 
   run:
     - libpng
     - zlib
     - xz
-    - lame  # [not win]
+    - mad  # [not win]
 
 test:
   commands:
