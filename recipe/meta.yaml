@@ -9,7 +9,7 @@ source:
   md5: d04fba2d9245e661f245de0577f48a33
 
 build:
-  number: 1012
+  number: 1013
   detect_binary_files_with_prefix: true
   skip: true  # [win]
 
@@ -21,12 +21,14 @@ requirements:
     - zlib
     - xz
     - lame  # [not win]
+    - mad  # [not win]    
 
   run:
     - libpng
     - zlib
     - xz
     - lame  # [not win]
+    - mad  # [not win]
 
 test:
   commands:
