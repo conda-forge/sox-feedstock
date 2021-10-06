@@ -12,6 +12,9 @@ build:
   number: 1013
   detect_binary_files_with_prefix: true
   skip: true  # [win]
+  run_exports:
+    # https://abi-laboratory.pro/tracker/timeline/sox/
+    - {{ pin_subpackage(name, max_pin='x.x.x') }}
 
 requirements:
   build:
@@ -21,7 +24,7 @@ requirements:
     - zlib
     - xz
     - lame  # [not win]
-    - mad  # [not win]    
+    - mad  # [not win]
 
   run:
     - libpng
