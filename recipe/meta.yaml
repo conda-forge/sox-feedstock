@@ -46,8 +46,9 @@ test:
 
 about:
   home: http://sox.sourceforge.net/
-  license: LGPLv2
+  license: GPL-2.0-only
   summary: A cross-platform command line utility that can convert various formats of computer audio files in to other formats.
+  license_file: COPYING
 
 extra:
   recipe-maintainers:
