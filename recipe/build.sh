@@ -13,6 +13,8 @@ source activate "${CONDA_DEFAULT_ENV}"
 make
 # only run tests during build phase if not cross-compiling
 if [[ "${HOST_PLATFORM}" == "${BUILD_PLATFORM}" ]]; then
+    echo "HOST_PLATFORM: ${HOST_PLATFORM}"
+    echo "BUILD_PLATFORM: ${BUILD_PLATFORM}"
     make bindir=. installcheck
 fi
 make install
