@@ -11,8 +11,6 @@ autoreconf -fiv
 source activate "${CONDA_DEFAULT_ENV}"
 ./configure --prefix=$PREFIX --exec-prefix=$PREFIX
 make
-# only run tests during build phase if not cross-compiling for osx-arm64
-if [[ $(uname) != Darwin || $(uname -m) != arm64 ]]; then
-    make bindir=. installcheck
-fi
+# only run tests during conda-build test phase: we may be cross-compiling
+# make bindir=. installcheck
 make install
