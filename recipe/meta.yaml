@@ -29,6 +29,8 @@ requirements:
     - libpng
     - zlib
     - xz
+    - libsndfile
+    - libvorbis
     - lame  # [not win]
     - mad  # [not win]
 

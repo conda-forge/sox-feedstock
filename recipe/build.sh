@@ -9,7 +9,11 @@ automake --add-missing
 autoreconf -fiv
 
 source activate "${CONDA_DEFAULT_ENV}"
-./configure --prefix=$PREFIX --exec-prefix=$PREFIX
+./configure \
+    --prefix=$PREFIX \
+    --exec-prefix=$PREFIX \
+    --without-opus \
+    --without-flac
 make
 make bindir=. installcheck
 make install
