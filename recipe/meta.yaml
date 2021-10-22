@@ -19,7 +19,11 @@ build:
 
 requirements:
   build:
+    - autoconf  # [unix]
+    - automake  # [unix]
     - gnuconfig  # [unix]
+    - libtool  # [unix]
+    - make
     - {{ compiler('c') }}
   host:
     - libpng
