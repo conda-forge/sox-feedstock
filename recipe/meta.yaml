@@ -24,6 +24,7 @@ requirements:
     - gnuconfig  # [unix]
     - libtool  # [unix]
     - make
+    - pkg-config
     - {{ compiler('c') }}
   host:
     - libpng
