@@ -19,6 +19,7 @@ build:
 
 requirements:
   build:
+    - gnuconfig  # [unix]
     - {{ compiler('c') }}
   host:
     - libpng
@@ -41,8 +42,6 @@ test:
     - test -e $PREFIX/lib/libsox.so      # [linux]
     - test -e $PREFIX/lib/libsox.dylib   # [osx]
     - otool -L $PREFIX/lib/libsox.dylib  # [osx]
-    - conda inspect linkages -p $PREFIX $PKG_NAME  # [not win]
-    - conda inspect objects -p $PREFIX $PKG_NAME  # [osx]
     - sox --help |grep "FILE FORMATS" | grep mp3  # [not win]
 
 about:
