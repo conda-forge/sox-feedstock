@@ -9,11 +9,10 @@ automake --add-missing
 autoreconf -fiv
 
 source activate "${CONDA_DEFAULT_ENV}"
-./configure \
-    --prefix=$PREFIX \
-    --exec-prefix=$PREFIX \
-    --without-opus \
-    --without-flac
+./configure --prefix=$PREFIX --exec-prefix=$PREFIX
 make
-make bindir=. installcheck
+# only run tests during build phase if not cross-compiling
+if [[ "${HOST_PLATFORM}" == "${BUILD_PLATFORM}" ]]; then
+    make bindir=. installcheck
+fi
 make install
