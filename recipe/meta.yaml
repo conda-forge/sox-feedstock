@@ -19,11 +19,19 @@ build:
 
 requirements:
   build:
+    - autoconf  # [unix]
+    - automake  # [unix]
+    - gnuconfig  # [unix]
+    - libtool  # [unix]
+    - make
+    - pkg-config
     - {{ compiler('c') }}
   host:
     - libpng
     - zlib
     - xz
+    - libsndfile
+    - libvorbis
     - lame  # [not win]
     - mad  # [not win]
 
@@ -41,8 +49,6 @@ test:
     - test -e $PREFIX/lib/libsox.so      # [linux]
     - test -e $PREFIX/lib/libsox.dylib   # [osx]
     - otool -L $PREFIX/lib/libsox.dylib  # [osx]
-    - conda inspect linkages -p $PREFIX $PKG_NAME  # [not win]
-    - conda inspect objects -p $PREFIX $PKG_NAME  # [osx]
     - sox --help |grep "FILE FORMATS" | grep mp3  # [not win]
 
 about:
