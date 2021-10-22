@@ -16,6 +16,10 @@ build:
   run_exports:
     # https://abi-laboratory.pro/tracker/timeline/sox/
     - {{ pin_subpackage(name, max_pin='x.x.x') }}
+  script_env:
+    # allows determining if we are cross-compiling at the build script
+    - HOST_PLATFORM
+    - BUILD_PLATFORM
 
 requirements:
   build:
