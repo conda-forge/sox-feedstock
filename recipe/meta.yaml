@@ -50,6 +50,7 @@ requirements:
     - xz
     - lame  # [not win]
     - mad  # [not win]
+    - python
 
 
 test:
@@ -59,7 +60,7 @@ test:
     - test -e $PREFIX/lib/libsox.so      # [linux]
     - test -e $PREFIX/lib/libsox.dylib   # [osx]
     - otool -L $PREFIX/lib/libsox.dylib  # [osx]
-    - sox --help |grep "FILE FORMATS" # [win]
+    - sox --help |grep "FILE FORMATS"  # [win]
     - sox --help |grep "FILE FORMATS" | grep mp3  # [not win]
     - sox --help |grep "FILE FORMATS" | grep flac
     - soxi --help |grep "FILE FORMATS"
