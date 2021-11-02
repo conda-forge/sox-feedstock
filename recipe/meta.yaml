@@ -15,14 +15,9 @@ source:
 build:
   number: 1015
   detect_binary_files_with_prefix: true
-  entry_points:
-    - play = soxpy.play:main
-    - rec = soxpy.rec:main
-    - soxi = soxpy.soxi:main
   run_exports:
     # https://abi-laboratory.pro/tracker/timeline/sox/
     - {{ pin_subpackage(name, max_pin='x.x.x') }}
-    - soxpy
 
 requirements:
   build:
@@ -42,7 +37,6 @@ requirements:
     - speex  # [linux]
     - lame  # [not win]
     - mad  # [not win]
-    - python
 
   run:
     - libpng
@@ -50,7 +44,6 @@ requirements:
     - xz
     - lame  # [not win]
     - mad  # [not win]
-    - python
 
 
 test:
@@ -63,9 +56,7 @@ test:
     - sox --help |grep "FILE FORMATS"  # [win]
     - sox --help |grep "FILE FORMATS" | grep mp3  # [not win]
     - sox --help |grep "FILE FORMATS" | grep flac
-    - soxi --help |grep "FILE FORMATS"
-    - play --help |grep "FILE FORMATS"
-    - rec --help |grep "FILE FORMATS"
+    - soxi --help |grep "Usage[:] soxi"
 
 about:
   home: http://sox.sourceforge.net/

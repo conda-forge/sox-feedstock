@@ -11,5 +11,3 @@ cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR="!PREFIX!\Librar
 cmake --build . --verbose --config Release --
 
 cmake --install .  --verbose --config Release
-
-%PYTHON% setup.py install

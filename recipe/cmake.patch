@@ -1,25 +1,13 @@
-From 3b5fccb8bcdcebacb20da7b7f2dc7013b0bb48e1 Mon Sep 17 00:00:00 2001
+From 772dc7f4d1c03e2d8d70a63ddb62e73e6bd91bba Mon Sep 17 00:00:00 2001
 From: Michael McAuliffe <michael.e.mcauliffe@gmail.com>
 Date: Mon, 1 Nov 2021 16:02:49 -0700
 Subject: [PATCH] Update CMake build
 
 ---
- CMakeLists.txt     | 17 ++++++++++++++---
- pyproject.toml     |  3 +++
- setup.py           | 17 +++++++++++++++++
- soxpy/__init__.py  |  0
- soxpy/play.py      |  9 +++++++++
- soxpy/rec.py       |  9 +++++++++
- soxpy/soxi.py      |  9 +++++++++
- src/CMakeLists.txt | 44 +++++++++++++++++++++++++++++++++-----------
+ CMakeLists.txt     | 17 ++++++++++---
+ src/CMakeLists.txt | 60 +++++++++++++++++++++++++++++++++++++---------
  src/formats.c      |  4 ++--
- 9 files changed, 96 insertions(+), 16 deletions(-)
- create mode 100644 pyproject.toml
- create mode 100644 setup.py
- create mode 100644 soxpy/__init__.py
- create mode 100644 soxpy/play.py
- create mode 100644 soxpy/rec.py
- create mode 100644 soxpy/soxi.py
+ 3 files changed, 65 insertions(+), 16 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index 9357cefe..10592620 100644
@@ -57,92 +45,8 @@ index 9357cefe..10592620 100644
  if(CMAKE_COMPILER_IS_GNUCC)
  	add_definitions(-fstack-protector -Wall -W -Wmissing-prototypes -Wstrict-prototypes -pedantic -Wno-format -Wno-long-long)
  endif(CMAKE_COMPILER_IS_GNUCC)
-diff --git a/pyproject.toml b/pyproject.toml
-new file mode 100644
-index 00000000..07de284a
---- /dev/null
-+++ b/pyproject.toml
-@@ -0,0 +1,3 @@
-+[build-system]
-+requires = ["setuptools", "wheel"]
-+build-backend = "setuptools.build_meta"
-\ No newline at end of file
-diff --git a/setup.py b/setup.py
-new file mode 100644
-index 00000000..c8216976
---- /dev/null
-+++ b/setup.py
-@@ -0,0 +1,17 @@
-+from setuptools import setup
-+
-+
-+if __name__ == '__main__':
-+    setup(name='soxpy',
-+          description='SoxPy is a wrapper around some of SoX\'s utility function scripts (play, rec, soxi)',
-+          version='0.0.1',
-+          packages=['soxpy'],
-+          python_requires='>=3.5',
-+          entry_points={
-+              'console_scripts': [
-+                  'play=soxpy.play:main',
-+                  'rec=soxpy.rec:main',
-+                  'soxi=soxpy.soxi:main',
-+              ]
-+          },
-+          )
-diff --git a/soxpy/__init__.py b/soxpy/__init__.py
-new file mode 100644
-index 00000000..e69de29b
-diff --git a/soxpy/play.py b/soxpy/play.py
-new file mode 100644
-index 00000000..0c42e505
---- /dev/null
-+++ b/soxpy/play.py
-@@ -0,0 +1,9 @@
-+#!/usr/bin/env python
-+import sys
-+import subprocess
-+
-+def main():
-+    subprocess.run(['sox', 'play'] + sys.argv[1:])
-+
-+if __name__ == '__main__':
-+    main()
-\ No newline at end of file
-diff --git a/soxpy/rec.py b/soxpy/rec.py
-new file mode 100644
-index 00000000..f84c5bd4
---- /dev/null
-+++ b/soxpy/rec.py
-@@ -0,0 +1,9 @@
-+#!/usr/bin/env python
-+import sys
-+import subprocess
-+
-+def main():
-+    subprocess.run(['sox', 'rec'] + sys.argv[1:])
-+
-+if __name__ == '__main__':
-+    main()
-\ No newline at end of file
-diff --git a/soxpy/soxi.py b/soxpy/soxi.py
-new file mode 100644
-index 00000000..b34864bb
---- /dev/null
-+++ b/soxpy/soxi.py
-@@ -0,0 +1,9 @@
-+#!/usr/bin/env python
-+import sys
-+import subprocess
-+
-+def main():
-+    subprocess.run(['sox', 'soxi'] + sys.argv[1:])
-+
-+if __name__ == '__main__':
-+    main()
-\ No newline at end of file
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 9e2d0771..581c5081 100644
+index 9e2d0771..ae9481d5 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -1,6 +1,8 @@
@@ -154,7 +58,7 @@ index 9e2d0771..581c5081 100644
  
  if(CMAKE_COMPILER_IS_GNUCC)
    execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion
-@@ -155,23 +157,36 @@ add_library(lib${PROJECT_NAME} ${lib_type}
+@@ -155,23 +157,45 @@ add_library(lib${PROJECT_NAME} ${lib_type}
  )
  
  if(BUILD_SHARED_LIBS)
@@ -172,12 +76,21 @@ index 9e2d0771..581c5081 100644
 +endif()
  
  add_executable(${PROJECT_NAME} ${PROJECT_NAME}.c)
++add_executable(rec ${PROJECT_NAME}.c)
++add_executable(play ${PROJECT_NAME}.c)
++add_executable(soxi ${PROJECT_NAME}.c)
  if(BUILD_SHARED_LIBS)
 -target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME} )
 +target_link_libraries(lib${PROJECT_NAME} lpc10 ${optional_libs})
 +target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME})
++target_link_libraries(rec lib${PROJECT_NAME})
++target_link_libraries(play lib${PROJECT_NAME})
++target_link_libraries(soxi lib${PROJECT_NAME})
  else()
  target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME} lpc10 ${optional_libs})
++target_link_libraries(rec lib${PROJECT_NAME} lpc10 ${optional_libs})
++target_link_libraries(play lib${PROJECT_NAME} lpc10 ${optional_libs})
++target_link_libraries(soxi lib${PROJECT_NAME} lpc10 ${optional_libs})
  endif()
 +
 +if(BUILD_STATIC_LIBS)
@@ -196,7 +109,7 @@ index 9e2d0771..581c5081 100644
  if(SOX_BUILD_EXAMPLES)
  add_executable(sox_sample_test sox_sample_test.c)
  add_executable(example0 example0.c)
-@@ -189,11 +204,18 @@ target_link_libraries(example5 lib${PROJECT_NAME} lpc10 ${optional_libs})
+@@ -189,11 +213,25 @@ target_link_libraries(example5 lib${PROJECT_NAME} lpc10 ${optional_libs})
  add_executable(example6 example6.c)
  target_link_libraries(example6 lib${PROJECT_NAME} lpc10 ${optional_libs})
  endif()
@@ -220,6 +133,13 @@ index 9e2d0771..581c5081 100644
 +LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
 +ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 +PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
++
++install(TARGETS play
++RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
++install(TARGETS rec
++RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
++install(TARGETS soxi
++RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 +
 diff --git a/src/formats.c b/src/formats.c
 index 386963d4..edcc4431 100644

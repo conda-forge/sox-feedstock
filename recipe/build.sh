@@ -12,6 +12,4 @@ cmake --build . --verbose --config Release -- -v -j ${CPU_COUNT}
 
 cmake --install . --verbose --config Release
 
-$PYTHON setup.py install --single-version-externally-managed --record=record.txt
-
 
