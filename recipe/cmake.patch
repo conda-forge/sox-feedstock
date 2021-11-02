@@ -1,18 +1,20 @@
-From ff54c0f37f2cfa5caa959e573aeba80e87e3b8df Mon Sep 17 00:00:00 2001
+From 3b5fccb8bcdcebacb20da7b7f2dc7013b0bb48e1 Mon Sep 17 00:00:00 2001
 From: Michael McAuliffe <michael.e.mcauliffe@gmail.com>
 Date: Mon, 1 Nov 2021 16:02:49 -0700
 Subject: [PATCH] Update CMake build
 
 ---
  CMakeLists.txt     | 17 ++++++++++++++---
+ pyproject.toml     |  3 +++
  setup.py           | 17 +++++++++++++++++
  soxpy/__init__.py  |  0
  soxpy/play.py      |  9 +++++++++
  soxpy/rec.py       |  9 +++++++++
  soxpy/soxi.py      |  9 +++++++++
- src/CMakeLists.txt | 43 ++++++++++++++++++++++++++++++++-----------
+ src/CMakeLists.txt | 44 +++++++++++++++++++++++++++++++++-----------
  src/formats.c      |  4 ++--
- 8 files changed, 92 insertions(+), 16 deletions(-)
+ 9 files changed, 96 insertions(+), 16 deletions(-)
+ create mode 100644 pyproject.toml
  create mode 100644 setup.py
  create mode 100644 soxpy/__init__.py
  create mode 100644 soxpy/play.py
@@ -55,6 +57,16 @@ index 9357cefe..10592620 100644
  if(CMAKE_COMPILER_IS_GNUCC)
  	add_definitions(-fstack-protector -Wall -W -Wmissing-prototypes -Wstrict-prototypes -pedantic -Wno-format -Wno-long-long)
  endif(CMAKE_COMPILER_IS_GNUCC)
+diff --git a/pyproject.toml b/pyproject.toml
+new file mode 100644
+index 00000000..07de284a
+--- /dev/null
++++ b/pyproject.toml
+@@ -0,0 +1,3 @@
++[build-system]
++requires = ["setuptools", "wheel"]
++build-backend = "setuptools.build_meta"
+\ No newline at end of file
 diff --git a/setup.py b/setup.py
 new file mode 100644
 index 00000000..c8216976
@@ -130,7 +142,7 @@ index 00000000..b34864bb
 +    main()
 \ No newline at end of file
 diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 9e2d0771..33556ef1 100644
+index 9e2d0771..581c5081 100644
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
 @@ -1,6 +1,8 @@
@@ -142,7 +154,7 @@ index 9e2d0771..33556ef1 100644
  
  if(CMAKE_COMPILER_IS_GNUCC)
    execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion
-@@ -155,23 +157,35 @@ add_library(lib${PROJECT_NAME} ${lib_type}
+@@ -155,23 +157,36 @@ add_library(lib${PROJECT_NAME} ${lib_type}
  )
  
  if(BUILD_SHARED_LIBS)
@@ -162,7 +174,8 @@ index 9e2d0771..33556ef1 100644
  add_executable(${PROJECT_NAME} ${PROJECT_NAME}.c)
  if(BUILD_SHARED_LIBS)
 -target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME} )
-+target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME} lpc10 ${optional_libs})
++target_link_libraries(lib${PROJECT_NAME} lpc10 ${optional_libs})
++target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME})
  else()
  target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME} lpc10 ${optional_libs})
  endif()
@@ -183,7 +196,7 @@ index 9e2d0771..33556ef1 100644
  if(SOX_BUILD_EXAMPLES)
  add_executable(sox_sample_test sox_sample_test.c)
  add_executable(example0 example0.c)
-@@ -189,11 +203,18 @@ target_link_libraries(example5 lib${PROJECT_NAME} lpc10 ${optional_libs})
+@@ -189,11 +204,18 @@ target_link_libraries(example5 lib${PROJECT_NAME} lpc10 ${optional_libs})
  add_executable(example6 example6.c)
  target_link_libraries(example6 lib${PROJECT_NAME} lpc10 ${optional_libs})
  endif()
