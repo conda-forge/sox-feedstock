@@ -1,29 +1,34 @@
 {% set name = "sox" %}
 {% set version = "14.4.2" %}
+{% set commit = "b9dd1a86e71bbd62221904e3e59dfaa9e5e72046" %}
 
 package:
   name: {{ name }}
   version: {{ version }}
 
 source:
-  url: http://sourceforge.net/projects/sox/files/sox/{{ version }}/sox-{{ version }}.tar.gz
-  md5: d04fba2d9245e661f245de0577f48a33
+  url: https://github.com/dmkrepo/libsox/archive/{{ commit }}.tar.gz
+  sha256: cb8159178c26adebf177c29fad78563cf8f4f85593030a2e89257bb19a05a2dc
+  patches:
+    - cmake.patch
 
 build:
-  number: 1014
+  number: 1015
   detect_binary_files_with_prefix: true
-  skip: true  # [win]
+  entry_points:
+    - play = soxpy.play:main
+    - rec = soxpy.rec:main
+    - soxi = soxpy.soxi:main
   run_exports:
     # https://abi-laboratory.pro/tracker/timeline/sox/
     - {{ pin_subpackage(name, max_pin='x.x.x') }}
+    - soxpy
 
 requirements:
   build:
-    - autoconf  # [unix]
-    - automake  # [unix]
-    - gnuconfig  # [unix]
-    - libtool  # [unix]
-    - make
+    - cmake
+    - ninja
+    - make  # [not win]
     - pkg-config
     - {{ compiler('c') }}
   host:
@@ -32,8 +37,12 @@ requirements:
     - xz
     - libsndfile
     - libvorbis
+    - libflac
+    - libopus
+    - speex  # [linux]
     - lame  # [not win]
     - mad  # [not win]
+    - python
 
   run:
     - libpng
@@ -42,14 +51,20 @@ requirements:
     - lame  # [not win]
     - mad  # [not win]
 
+
 test:
   commands:
     - test -e $PREFIX/include/sox.h      # [unix]
-    - test -e $PREFIX/lib/libsox.a       # [unix]
+    - test -e $PREFIX/lib/libsox_static.a       # [unix]
     - test -e $PREFIX/lib/libsox.so      # [linux]
     - test -e $PREFIX/lib/libsox.dylib   # [osx]
     - otool -L $PREFIX/lib/libsox.dylib  # [osx]
+    - sox --help |grep "FILE FORMATS" # [win]
     - sox --help |grep "FILE FORMATS" | grep mp3  # [not win]
+    - sox --help |grep "FILE FORMATS" | grep flac
+    - soxi --help |grep "FILE FORMATS"
+    - play --help |grep "FILE FORMATS"
+    - rec --help |grep "FILE FORMATS"
 
 about:
   home: http://sox.sourceforge.net/

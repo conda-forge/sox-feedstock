@@ -1,0 +1,235 @@
+From ff54c0f37f2cfa5caa959e573aeba80e87e3b8df Mon Sep 17 00:00:00 2001
+From: Michael McAuliffe <michael.e.mcauliffe@gmail.com>
+Date: Mon, 1 Nov 2021 16:02:49 -0700
+Subject: [PATCH] Update CMake build
+
+---
+ CMakeLists.txt     | 17 ++++++++++++++---
+ setup.py           | 17 +++++++++++++++++
+ soxpy/__init__.py  |  0
+ soxpy/play.py      |  9 +++++++++
+ soxpy/rec.py       |  9 +++++++++
+ soxpy/soxi.py      |  9 +++++++++
+ src/CMakeLists.txt | 43 ++++++++++++++++++++++++++++++++-----------
+ src/formats.c      |  4 ++--
+ 8 files changed, 92 insertions(+), 16 deletions(-)
+ create mode 100644 setup.py
+ create mode 100644 soxpy/__init__.py
+ create mode 100644 soxpy/play.py
+ create mode 100644 soxpy/rec.py
+ create mode 100644 soxpy/soxi.py
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9357cefe..10592620 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,8 +1,21 @@
+-cmake_minimum_required(VERSION 2.4)
++cmake_minimum_required(VERSION 3.13)
+ include(CheckIncludeFiles)
+ include(CheckFunctionExists)
+ include(CheckLibraryExists)
+ 
++project(sox C)
++
++include_directories(${CMAKE_INSTALL_INCLUDEDIR})
++include_directories(${CMAKE_INSTALL_INCLUDEDIR}/opus)
++message(STATUS "Added ${CMAKE_INSTALL_INCLUDEDIR} to include path")
++link_directories(${CMAKE_INSTALL_LIBDIR})
++message(STATUS "Added ${CMAKE_INSTALL_LIBDIR} to lib path")
++
++option(BUILD_SHARED_LIBS "Build libsox as a shared library" ON)
++
++option(BUILD_STATIC_LIBS "Build libsox as a static library" ON)
++option(SOX_BUILD_EXAMPLES "Build examples" OFF)
++
+ macro(optional variable header library function source)
+   check_include_files(${header} ${variable}1)
+   if (${variable}1)
+@@ -65,8 +78,6 @@ macro(optional4 variable header library1 function1 library2 function2 library3 f
+   endif (${variable}1)
+ endmacro(optional4)
+ 
+-project(sox C)
+-
+ if(CMAKE_COMPILER_IS_GNUCC)
+ 	add_definitions(-fstack-protector -Wall -W -Wmissing-prototypes -Wstrict-prototypes -pedantic -Wno-format -Wno-long-long)
+ endif(CMAKE_COMPILER_IS_GNUCC)
+diff --git a/setup.py b/setup.py
+new file mode 100644
+index 00000000..c8216976
+--- /dev/null
++++ b/setup.py
+@@ -0,0 +1,17 @@
++from setuptools import setup
++
++
++if __name__ == '__main__':
++    setup(name='soxpy',
++          description='SoxPy is a wrapper around some of SoX\'s utility function scripts (play, rec, soxi)',
++          version='0.0.1',
++          packages=['soxpy'],
++          python_requires='>=3.5',
++          entry_points={
++              'console_scripts': [
++                  'play=soxpy.play:main',
++                  'rec=soxpy.rec:main',
++                  'soxi=soxpy.soxi:main',
++              ]
++          },
++          )
+diff --git a/soxpy/__init__.py b/soxpy/__init__.py
+new file mode 100644
+index 00000000..e69de29b
+diff --git a/soxpy/play.py b/soxpy/play.py
+new file mode 100644
+index 00000000..0c42e505
+--- /dev/null
++++ b/soxpy/play.py
+@@ -0,0 +1,9 @@
++#!/usr/bin/env python
++import sys
++import subprocess
++
++def main():
++    subprocess.run(['sox', 'play'] + sys.argv[1:])
++
++if __name__ == '__main__':
++    main()
+\ No newline at end of file
+diff --git a/soxpy/rec.py b/soxpy/rec.py
+new file mode 100644
+index 00000000..f84c5bd4
+--- /dev/null
++++ b/soxpy/rec.py
+@@ -0,0 +1,9 @@
++#!/usr/bin/env python
++import sys
++import subprocess
++
++def main():
++    subprocess.run(['sox', 'rec'] + sys.argv[1:])
++
++if __name__ == '__main__':
++    main()
+\ No newline at end of file
+diff --git a/soxpy/soxi.py b/soxpy/soxi.py
+new file mode 100644
+index 00000000..b34864bb
+--- /dev/null
++++ b/soxpy/soxi.py
+@@ -0,0 +1,9 @@
++#!/usr/bin/env python
++import sys
++import subprocess
++
++def main():
++    subprocess.run(['sox', 'soxi'] + sys.argv[1:])
++
++if __name__ == '__main__':
++    main()
+\ No newline at end of file
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 9e2d0771..33556ef1 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1,6 +1,8 @@
+ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}config.h)
+ 
+ include_directories(${CMAKE_CURRENT_BINARY_DIR})
++set(CMAKE_STATIC_LIBRARY_PREFIX "")
++set(CMAKE_SHARED_LIBRARY_PREFIX "")
+ 
+ if(CMAKE_COMPILER_IS_GNUCC)
+   execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion
+@@ -155,23 +157,35 @@ add_library(lib${PROJECT_NAME} ${lib_type}
+ )
+ 
+ if(BUILD_SHARED_LIBS)
++if(MSVC)
+ target_compile_options(
+ 	lib${PROJECT_NAME}
+ 	PUBLIC  -DLSX_DLL
+ 	PRIVATE -DLSX_EXPORT
+ )
+-target_link_libraries(lib${PROJECT_NAME} lpc10 ${optional_libs})
+ endif()
+-
+-option(BUILD_SHARED_LIBS "Build libsox as a shared library" ON)
+-option(SOX_BUILD_EXAMPLES "Build examples" ON)
++endif()
+ 
+ add_executable(${PROJECT_NAME} ${PROJECT_NAME}.c)
+ if(BUILD_SHARED_LIBS)
+-target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME} )
++target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME} lpc10 ${optional_libs})
+ else()
+ target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME} lpc10 ${optional_libs})
+ endif()
++
++if(BUILD_STATIC_LIBS)
++
++  add_library(libsox_static STATIC
++  effects                 formats_i               libsox_i
++  effects_i               ${formats_srcs}         ${optional_srcs}
++  effects_i_dsp           getopt
++  ${effects_srcs}         util
++  formats                 libsox                  xmalloc
++  )
++  install(TARGETS libsox_static
++  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
++endif()
++
+ if(SOX_BUILD_EXAMPLES)
+ add_executable(sox_sample_test sox_sample_test.c)
+ add_executable(example0 example0.c)
+@@ -189,11 +203,18 @@ target_link_libraries(example5 lib${PROJECT_NAME} lpc10 ${optional_libs})
+ add_executable(example6 example6.c)
+ target_link_libraries(example6 lib${PROJECT_NAME} lpc10 ${optional_libs})
+ endif()
+-find_program(LN ln)
+-if (LN)
+-  add_custom_target(rec ALL ${LN} -sf sox rec DEPENDS sox)
+-  add_custom_target(play ALL ${LN} -sf sox play DEPENDS sox)
+-  add_custom_target(soxi ALL ${LN} -sf sox soxi DEPENDS sox)
+-endif (LN)
++
+ find_program(CTAGS NAMES exuberant-ctags ctags)
+ add_custom_target(tags ${CTAGS} --recurse --extra=fq ${CMAKE_CURRENT_SOURCE_DIR})
++
++set_target_properties(sox PROPERTIES PUBLIC_HEADER "sox.h")
++install(TARGETS libsox
++RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
++install(TARGETS sox
++RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
++
+diff --git a/src/formats.c b/src/formats.c
+index 386963d4..edcc4431 100644
+--- a/src/formats.c
++++ b/src/formats.c
+@@ -405,7 +405,7 @@ static FILE * xfopen(char const * identifier, char const * mode, lsx_io_type * i
+ }
+ 
+ 
+-#if defined(_MSC_VER) && _MSC_VER == 1900
++#if defined(_MSC_VER)
+ /*
+ Fix for Visual Studio 2015
+ Taken from https://rt.perl.org/Public/Bug/Display.html?id=125714
+@@ -442,7 +442,7 @@ static void UNUSED rewind_pipe(FILE * fp)
+   fp->_r += PIPE_AUTO_DETECT_SIZE;
+ #elif defined __GLIBC__
+   fp->_IO_read_ptr = fp->_IO_read_base;
+-#elif defined _MSC_VER && _MSC_VER == 1900
++#elif defined _MSC_VER
+   ((__crt_stdio_stream_data*)fp)->_ptr = ((__crt_stdio_stream_data*)fp)->_base;
+ #elif defined _MSC_VER || defined _WIN32 || defined _WIN64 || \
+       defined _ISO_STDIO_ISO_H || defined __sgi
+-- 
+2.33.1
+
