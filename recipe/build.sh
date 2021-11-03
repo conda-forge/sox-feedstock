@@ -1,16 +1,15 @@
-#!/bin/bash
-# Get an updated config.sub and config.guess
-cp $BUILD_PREFIX/share/gnuconfig/config.* .
+#! /usr/bin/env bash
 
-libtoolize
-aclocal
-autoheader
-automake --add-missing
-autoreconf -fiv
 
-source activate "${CONDA_DEFAULT_ENV}"
-./configure --prefix=$PREFIX --exec-prefix=$PREFIX
-make
-# only run tests during conda-build test phase: we may be cross-compiling
-# make bindir=. installcheck
-make install
+
+cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_LIBDIR=${PREFIX}/lib \
+              -DCMAKE_INSTALL_INCLUDEDIR=${PREFIX}/include \
+              -DCMAKE_INSTALL_PREFIX=${PREFIX} \
+               -DSOX_BUILD_EXAMPLES=OFF -DBUILD_SHARED_LIBS=ON  .
+
+
+cmake --build . --verbose --config Release -- -v -j ${CPU_COUNT}
+
+cmake --install . --verbose --config Release
+
+

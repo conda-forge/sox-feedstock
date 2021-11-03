@@ -1,0 +1,224 @@
+From e3992a035b5165df2ab6940dad43f024a3dc3c72 Mon Sep 17 00:00:00 2001
+From: Michael McAuliffe <michael.e.mcauliffe@gmail.com>
+Date: Wed, 3 Nov 2021 12:45:56 -0700
+Subject: [PATCH] Add Visual studio fix from dmkrepo and flac support
+
+---
+ CMakeLists.txt        | 17 ++++++++--
+ libgsm/CMakeLists.txt |  2 +-
+ lpc10/CMakeLists.txt  |  2 +-
+ src/CMakeLists.txt    | 77 +++++++++++++++++++++++++++++++++++++++----
+ src/formats.c         | 28 ++++++++++++++++
+ 5 files changed, 114 insertions(+), 12 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9357cef..1059262 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,8 +1,21 @@
+-cmake_minimum_required(VERSION 2.4)
++cmake_minimum_required(VERSION 3.13)
+ include(CheckIncludeFiles)
+ include(CheckFunctionExists)
+ include(CheckLibraryExists)
+ 
++project(sox C)
++
++include_directories(${CMAKE_INSTALL_INCLUDEDIR})
++include_directories(${CMAKE_INSTALL_INCLUDEDIR}/opus)
++message(STATUS "Added ${CMAKE_INSTALL_INCLUDEDIR} to include path")
++link_directories(${CMAKE_INSTALL_LIBDIR})
++message(STATUS "Added ${CMAKE_INSTALL_LIBDIR} to lib path")
++
++option(BUILD_SHARED_LIBS "Build libsox as a shared library" ON)
++
++option(BUILD_STATIC_LIBS "Build libsox as a static library" ON)
++option(SOX_BUILD_EXAMPLES "Build examples" OFF)
++
+ macro(optional variable header library function source)
+   check_include_files(${header} ${variable}1)
+   if (${variable}1)
+@@ -65,8 +78,6 @@ macro(optional4 variable header library1 function1 library2 function2 library3 f
+   endif (${variable}1)
+ endmacro(optional4)
+ 
+-project(sox C)
+-
+ if(CMAKE_COMPILER_IS_GNUCC)
+ 	add_definitions(-fstack-protector -Wall -W -Wmissing-prototypes -Wstrict-prototypes -pedantic -Wno-format -Wno-long-long)
+ endif(CMAKE_COMPILER_IS_GNUCC)
+diff --git a/libgsm/CMakeLists.txt b/libgsm/CMakeLists.txt
+index 3422285..113d29f 100644
+--- a/libgsm/CMakeLists.txt
++++ b/libgsm/CMakeLists.txt
+@@ -1 +1 @@
+-add_library(gsm add code decode gsm_create gsm_decode gsm_destroy gsm_encode gsm_option long_term lpc preprocess rpe short_term table)
++add_library(gsm STATIC add code decode gsm_create gsm_decode gsm_destroy gsm_encode gsm_option long_term lpc preprocess rpe short_term table)
+diff --git a/lpc10/CMakeLists.txt b/lpc10/CMakeLists.txt
+index cb8b459..0f9015f 100644
+--- a/lpc10/CMakeLists.txt
++++ b/lpc10/CMakeLists.txt
+@@ -1,4 +1,4 @@
+ include_directories(${CMAKE_CURRENT_BINARY_DIR})
+ 
+-add_library(lpc10 analys bsynz chanwr dcbias decode deemp difmag dyptrk encode energy f2clib ham84 hp100 invert irc2pc ivfilt lpcdec lpcenc lpcini lpfilt median mload onset pitsyn placea placev preemp prepro random rcchk synths tbdm voicin vparms)
++add_library(lpc10 STATIC analys bsynz chanwr dcbias decode deemp difmag dyptrk encode energy f2clib ham84 hp100 invert irc2pc ivfilt lpcdec lpcenc lpcini lpfilt median mload onset pitsyn placea placev preemp prepro random rcchk synths tbdm voicin vparms)
+ include_directories(${CMAKE_CURRENT_BINARY_DIR}/../src)
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index bde10d6..ae9481d 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -1,6 +1,8 @@
+ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}config.h)
+ 
+ include_directories(${CMAKE_CURRENT_BINARY_DIR})
++set(CMAKE_STATIC_LIBRARY_PREFIX "")
++set(CMAKE_SHARED_LIBRARY_PREFIX "")
+ 
+ if(CMAKE_COMPILER_IS_GNUCC)
+   execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion
+@@ -140,15 +142,61 @@ set(formats_srcs
+ #set(formats_srcs ${formats_srcs} coreaudio sndio sunaudio waveaudio)
+ #add_definitions(-Ibit-rot)
+ 
+-add_library(lib${PROJECT_NAME}
++if(BUILD_SHARED_LIBS)
++set(lib_type SHARED)
++else()
++set(lib_type STATIC)
++endif()
++
++add_library(lib${PROJECT_NAME} ${lib_type}
+   effects                 formats_i               libsox_i
+   effects_i               ${formats_srcs}         ${optional_srcs}
+   effects_i_dsp           getopt
+   ${effects_srcs}         util
+   formats                 libsox                  xmalloc
+ )
++
++if(BUILD_SHARED_LIBS)
++if(MSVC)
++target_compile_options(
++	lib${PROJECT_NAME}
++	PUBLIC  -DLSX_DLL
++	PRIVATE -DLSX_EXPORT
++)
++endif()
++endif()
++
+ add_executable(${PROJECT_NAME} ${PROJECT_NAME}.c)
++add_executable(rec ${PROJECT_NAME}.c)
++add_executable(play ${PROJECT_NAME}.c)
++add_executable(soxi ${PROJECT_NAME}.c)
++if(BUILD_SHARED_LIBS)
++target_link_libraries(lib${PROJECT_NAME} lpc10 ${optional_libs})
++target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME})
++target_link_libraries(rec lib${PROJECT_NAME})
++target_link_libraries(play lib${PROJECT_NAME})
++target_link_libraries(soxi lib${PROJECT_NAME})
++else()
+ target_link_libraries(${PROJECT_NAME} lib${PROJECT_NAME} lpc10 ${optional_libs})
++target_link_libraries(rec lib${PROJECT_NAME} lpc10 ${optional_libs})
++target_link_libraries(play lib${PROJECT_NAME} lpc10 ${optional_libs})
++target_link_libraries(soxi lib${PROJECT_NAME} lpc10 ${optional_libs})
++endif()
++
++if(BUILD_STATIC_LIBS)
++
++  add_library(libsox_static STATIC
++  effects                 formats_i               libsox_i
++  effects_i               ${formats_srcs}         ${optional_srcs}
++  effects_i_dsp           getopt
++  ${effects_srcs}         util
++  formats                 libsox                  xmalloc
++  )
++  install(TARGETS libsox_static
++  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
++endif()
++
++if(SOX_BUILD_EXAMPLES)
+ add_executable(sox_sample_test sox_sample_test.c)
+ add_executable(example0 example0.c)
+ target_link_libraries(example0 lib${PROJECT_NAME} lpc10 ${optional_libs})
+@@ -164,11 +212,26 @@ add_executable(example5 example5.c)
+ target_link_libraries(example5 lib${PROJECT_NAME} lpc10 ${optional_libs})
+ add_executable(example6 example6.c)
+ target_link_libraries(example6 lib${PROJECT_NAME} lpc10 ${optional_libs})
+-find_program(LN ln)
+-if (LN)
+-  add_custom_target(rec ALL ${LN} -sf sox rec DEPENDS sox)
+-  add_custom_target(play ALL ${LN} -sf sox play DEPENDS sox)
+-  add_custom_target(soxi ALL ${LN} -sf sox soxi DEPENDS sox)
+-endif (LN)
++endif()
++
+ find_program(CTAGS NAMES exuberant-ctags ctags)
+ add_custom_target(tags ${CTAGS} --recurse --extra=fq ${CMAKE_CURRENT_SOURCE_DIR})
++
++set_target_properties(sox PROPERTIES PUBLIC_HEADER "sox.h")
++install(TARGETS libsox
++RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
++install(TARGETS sox
++RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
++LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
++ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
++PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX}/include)
++
++install(TARGETS play
++RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
++install(TARGETS rec
++RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
++install(TARGETS soxi
++RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
++
+diff --git a/src/formats.c b/src/formats.c
+index 724a4cd..fc278f8 100644
+--- a/src/formats.c
++++ b/src/formats.c
+@@ -404,6 +404,32 @@ static FILE * xfopen(char const * identifier, char const * mode, lsx_io_type * i
+   return fopen(identifier, mode);
+ }
+ 
++#if defined(_MSC_VER)
++/*
++Fix for Visual Studio 2015
++Taken from https://rt.perl.org/Public/Bug/Display.html?id=125714
++*/
++/* From corecrt_internal_stdio.h: */
++typedef struct
++{
++    union
++    {
++        FILE  _public_file;
++        char* _ptr;
++    };
++
++    char*            _base;
++    int              _cnt;
++    long             _flags;
++    long             _file;
++    int              _charbuf;
++    int              _bufsiz;
++    char*            _tmpfname;
++    /*CRITICAL_SECTION _lock;*/
++} __crt_stdio_stream_data;
++
++#endif
++
+ /* Hack to rewind pipes (a small amount).
+  * Works by resetting the FILE buffer pointer */
+ static void UNUSED rewind_pipe(FILE * fp)
+@@ -415,6 +441,8 @@ static void UNUSED rewind_pipe(FILE * fp)
+   fp->_r += PIPE_AUTO_DETECT_SIZE;
+ #elif defined __GLIBC__
+   fp->_IO_read_ptr = fp->_IO_read_base;
++#elif defined _MSC_VER
++  ((__crt_stdio_stream_data*)fp)->_ptr = ((__crt_stdio_stream_data*)fp)->_base;
+ #elif defined _MSC_VER || defined _WIN32 || defined _WIN64 || \
+       defined _ISO_STDIO_ISO_H || defined __sgi
+   fp->_ptr = fp->_base;
+-- 
+2.33.1
+

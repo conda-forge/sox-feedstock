@@ -8,22 +8,22 @@ package:
 source:
   url: http://sourceforge.net/projects/sox/files/sox/{{ version }}/sox-{{ version }}.tar.gz
   md5: d04fba2d9245e661f245de0577f48a33
+  patches:
+    # Incorporates changes from https://github.com/dmkrepo/libsox to fix building on VS2015+ on windows
+    - cmake.patch
 
 build:
-  number: 1014
+  number: 1015
   detect_binary_files_with_prefix: true
-  skip: true  # [win]
   run_exports:
     # https://abi-laboratory.pro/tracker/timeline/sox/
     - {{ pin_subpackage(name, max_pin='x.x.x') }}
 
 requirements:
   build:
-    - autoconf  # [unix]
-    - automake  # [unix]
-    - gnuconfig  # [unix]
-    - libtool  # [unix]
-    - make
+    - cmake
+    - ninja
+    - make  # [not win]
     - pkg-config
     - {{ compiler('c') }}
   host:
@@ -32,6 +32,9 @@ requirements:
     - xz
     - libsndfile
     - libvorbis
+    - libflac
+    - libopus
+    - speex  # [linux]
     - lame  # [not win]
     - mad  # [not win]
 
@@ -42,14 +45,17 @@ requirements:
     - lame  # [not win]
     - mad  # [not win]
 
+
 test:
   commands:
     - test -e $PREFIX/include/sox.h      # [unix]
-    - test -e $PREFIX/lib/libsox.a       # [unix]
+    - test -e $PREFIX/lib/libsox_static.a       # [unix]
     - test -e $PREFIX/lib/libsox.so      # [linux]
     - test -e $PREFIX/lib/libsox.dylib   # [osx]
     - otool -L $PREFIX/lib/libsox.dylib  # [osx]
+    - sox --help  # [win]
     - sox --help |grep "FILE FORMATS" | grep mp3  # [not win]
+    - soxi --help |grep "Usage[:] soxi"  # [not win]
 
 about:
   home: http://sox.sourceforge.net/
