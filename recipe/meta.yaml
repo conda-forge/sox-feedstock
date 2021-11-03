@@ -1,15 +1,15 @@
 {% set name = "sox" %}
 {% set version = "14.4.2" %}
-{% set commit = "b9dd1a86e71bbd62221904e3e59dfaa9e5e72046" %}
 
 package:
   name: {{ name }}
   version: {{ version }}
 
 source:
-  url: https://github.com/dmkrepo/libsox/archive/{{ commit }}.tar.gz
-  sha256: cb8159178c26adebf177c29fad78563cf8f4f85593030a2e89257bb19a05a2dc
+  url: http://sourceforge.net/projects/sox/files/sox/{{ version }}/sox-{{ version }}.tar.gz
+  md5: d04fba2d9245e661f245de0577f48a33
   patches:
+    # Incorporates changes from https://github.com/dmkrepo/libsox to fix building on VS2015+ on windows
     - cmake.patch
 
 build:
