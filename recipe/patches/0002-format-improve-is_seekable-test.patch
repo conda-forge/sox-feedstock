@@ -1,0 +1,39 @@
+From 3d8c91c3b2885b2fc5708ff8dcdf8e0273a026c8 Mon Sep 17 00:00:00 2001
+From: Mans Rullgard <mans@mansr.com>
+Date: Tue, 4 Aug 2020 17:19:49 +0100
+Subject: [PATCH 2/2] format: improve is_seekable() test
+
+Streams opened with fmemopen() do not have an underlying file descriptor,
+so the fstat() will fail, and a random result is returned.
+
+A simpler method that works regardless of file type is to call fseek()
+and check if it reports success.
+
+Suggested by Stefan Sauer <ensonic@google.com>.
+---
+ src/formats.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/src/formats.c b/src/formats.c
+index fc278f8b..b9aa363b 100644
+--- a/src/formats.c
++++ b/src/formats.c
+@@ -328,13 +328,11 @@ static void set_endiannesses(sox_format_t * ft)
+ 
+ static sox_bool is_seekable(sox_format_t const * ft)
+ {
+-  struct stat st;
+-
+   assert(ft);
+   if (!ft->fp)
+     return sox_false;
+-  fstat(fileno((FILE*)ft->fp), &st);
+-  return ((st.st_mode & S_IFMT) == S_IFREG);
++
++  return !fseek(ft->fp, 0, SEEK_CUR);
+ }
+ 
+ /* check that all settings have been given */
+-- 
+2.37.0.windows.1
+
