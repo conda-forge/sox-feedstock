@@ -16,7 +16,7 @@ source:
     - patches/0002-format-improve-is_seekable-test.patch
 
 build:
-  number: 1015
+  number: 1016
   detect_binary_files_with_prefix: true
   run_exports:
     # https://abi-laboratory.pro/tracker/timeline/sox/
