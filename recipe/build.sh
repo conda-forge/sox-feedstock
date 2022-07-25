@@ -11,6 +11,7 @@ cmake -GNinja \
     -DCMAKE_INSTALL_PREFIX=${PREFIX} \
     -DSOX_BUILD_EXAMPLES=OFF \
     -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_STATIC_LIBS=OFF \
     ..
 
 cmake --build . --verbose --config Release -- -v -j ${CPU_COUNT}
