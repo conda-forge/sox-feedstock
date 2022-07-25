@@ -1,7 +1,7 @@
 From 3d8c91c3b2885b2fc5708ff8dcdf8e0273a026c8 Mon Sep 17 00:00:00 2001
 From: Mans Rullgard <mans@mansr.com>
 Date: Tue, 4 Aug 2020 17:19:49 +0100
-Subject: [PATCH 2/2] format: improve is_seekable() test
+Subject: [PATCH 2/3] format: improve is_seekable() test
 
 Streams opened with fmemopen() do not have an underlying file descriptor,
 so the fstat() will fail, and a random result is returned.

@@ -12,8 +12,11 @@ source:
     # Incorporates changes from https://github.com/dmkrepo/libsox to fix building on VS2015+ on windows
     - patches/0001-Add-Visual-studio-fix-from-dmkrepo-and-flac-support.patch
     # backport https://sourceforge.net/p/sox/code/ci/bb38934e11035c8fab141f70dabda3afdd17da36/
-    # fixes issues like https://github.com/pytorch/audio/pull/1297
+    # kept for completeness to highlight the differences of the fix by torchaudio
     - patches/0002-format-improve-is_seekable-test.patch
+    # replaces the above fix, take patch from
+    # https://github.com/pytorch/audio/pull/1297
+    - patches/0003-Fix-fileobj-I-O-un-deterministic-behavior.patch
 
 build:
   number: 1016
