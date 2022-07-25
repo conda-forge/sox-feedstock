@@ -10,7 +10,7 @@ source:
   md5: d04fba2d9245e661f245de0577f48a33
   patches:
     # Incorporates changes from https://github.com/dmkrepo/libsox to fix building on VS2015+ on windows
-    - cmake.patch
+    - patches/0001-Add-Visual-studio-fix-from-dmkrepo-and-flac-support.patch
 
 build:
   number: 1015
