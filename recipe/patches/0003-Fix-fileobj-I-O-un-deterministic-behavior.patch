@@ -1,0 +1,86 @@
+From df8b1e33705e45d0e70af794d819d80e4772a2b2 Mon Sep 17 00:00:00 2001
+From: moto <855818+mthrok@users.noreply.github.com>
+Date: Tue, 23 Feb 2021 13:08:53 -0500
+Subject: [PATCH 3/3] Fix fileobj I/O un-deterministic behavior
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Description taken from https://github.com/pytorch/audio/pull/1297
+
+> ## What was the cause and what is the fix?
+>
+> When opening file (for both read and write), `libsox` initializes the
+> dedicated data structure called `sox_format_t`, and set various attributes.
+> One of which is `seekable` and this value is supposed to be `false` for
+> file-like objects. In the investigation #1229, it turned out that this
+> attribute is occasionally `true` which contributed to the un-deterministic
+> behavior described above. The following code from `libsox` determines if the
+> opened `FILE*` is `seekable`, by simply checking if the associated file
+> descriptor is a regular file.
+> [[src](https://github.com/dmkrepo/libsox/blob/master/src/formats.c#L329-L338)]
+>
+> ```c
+> static sox_bool is_seekable(sox_format_t const * ft)
+> {
+>   struct stat st;
+>
+>   assert(ft);
+>   if (!ft->fp)
+>     return sox_false;
+>   fstat(fileno((FILE*)ft->fp), &st);
+>   return ((st.st_mode & S_IFMT) == S_IFREG);
+> }
+> ```
+>
+> The problem is that `fileno` returns `-1` for the case of file-like object.
+> This is because for file-like object, we use [`sox_open_mem_read`](<repo>/src/formats.c#L617)
+> or [`sox_open_mem_stream_write`](<repo>/src/formats.c#L991), which calls
+> [`fmemopen`](<repo>/src/formats.c#L496) and [`open_memstream`](<repo>/src/formats.c#L894)
+> respectively, and the resulting `*FILE` object does not have the associated
+> file descriptor. In this case, `fstat` received `-1` as the file descriptor
+> value and (I guess) the `stat` structure is untouched. Thus the attribute of
+> `st_mode` has an un-initialized value, which result in un-deterministic behavior.
+>
+> This PR adds patch to check the the value of file descriptor and mark
+> `seekable=false` if it does not have a valid file descriptor.
+
+[...]
+
+> ## Upstream situation
+>
+> ⚠️ the upstream has a fix https://sourceforge.net/p/sox/code/ci/bb38934e11035c8fab141f70dabda3afdd17da36/,
+> but this fix seems to make `is_seekable` return `true` for the in-memory file
+> object case (need to verify this), which is the opposite of the behavior we
+> want in torchaudio implementation.
+---
+ src/formats.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/src/formats.c b/src/formats.c
+index b9aa363b..1db5bc47 100644
+--- a/src/formats.c
++++ b/src/formats.c
+@@ -328,11 +328,17 @@ static void set_endiannesses(sox_format_t * ft)
+ 
+ static sox_bool is_seekable(sox_format_t const * ft)
+ {
++  struct stat st;
++
+   assert(ft);
+   if (!ft->fp)
+     return sox_false;
+-
+-  return !fseek(ft->fp, 0, SEEK_CUR);
++  int fd = fileno((FILE*)ft->fp);
++  if (fd < 0)
++    return sox_false;
++  if (fstat(fd, &st) < 0)
++    return sox_false;
++  return ((st.st_mode & S_IFMT) == S_IFREG);
+ }
+ 
+ /* check that all settings have been given */
+-- 
+2.37.0.windows.1
+

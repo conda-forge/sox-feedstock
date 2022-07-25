@@ -10,10 +10,16 @@ source:
   md5: d04fba2d9245e661f245de0577f48a33
   patches:
     # Incorporates changes from https://github.com/dmkrepo/libsox to fix building on VS2015+ on windows
-    - cmake.patch
+    - patches/0001-Add-Visual-studio-fix-from-dmkrepo-and-flac-support.patch
+    # backport https://sourceforge.net/p/sox/code/ci/bb38934e11035c8fab141f70dabda3afdd17da36/
+    # kept for completeness to highlight the differences of the fix by torchaudio
+    - patches/0002-format-improve-is_seekable-test.patch
+    # replaces the above fix, take patch from
+    # https://github.com/pytorch/audio/pull/1297
+    - patches/0003-Fix-fileobj-I-O-un-deterministic-behavior.patch
 
 build:
-  number: 1015
+  number: 1016
   detect_binary_files_with_prefix: true
   run_exports:
     # https://abi-laboratory.pro/tracker/timeline/sox/
@@ -48,14 +54,25 @@ requirements:
 
 test:
   commands:
-    - test -e $PREFIX/include/sox.h      # [unix]
-    - test -e $PREFIX/lib/libsox_static.a       # [unix]
-    - test -e $PREFIX/lib/libsox.so      # [linux]
-    - test -e $PREFIX/lib/libsox.dylib   # [osx]
-    - otool -L $PREFIX/lib/libsox.dylib  # [osx]
-    - sox --help  # [win]
-    - sox --help |grep "FILE FORMATS" | grep mp3  # [not win]
-    - soxi --help |grep "Usage[:] soxi"  # [not win]
+    # shared libs
+    - test -f $PREFIX/lib/libsox.so                 # [linux]
+    - test -f $PREFIX/lib/libsox.dylib              # [osx]
+    - otool -L $PREFIX/lib/libsox.dylib             # [osx]
+    - if not exist %LIBRARY_LIB%\libsox.lib exit 1  # [win]
+    - if not exist %LIBRARY_BIN%\libsox.dll exit 1  # [win]
+
+    # absence of static libraries
+    - test ! -f $PREFIX/lib/libsox.a                # [unix]
+    - test ! -f $PREFIX/lib/libsox_static.a         # [unix]
+
+    # headers
+    - test -f $PREFIX/include/sox.h                 # [unix]
+    - if not exist %LIBRARY_INC%\sox.h exit 1       # [win]
+
+    # binaries
+    - sox --help                                    # [win]
+    - sox --help | grep "FILE FORMATS" | grep mp3   # [not win]
+    - soxi --help | grep "Usage[:] soxi"            # [not win]
 
 about:
   home: http://sox.sourceforge.net/
