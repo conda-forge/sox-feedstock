@@ -54,14 +54,25 @@ requirements:
 
 test:
   commands:
-    - test -e $PREFIX/include/sox.h      # [unix]
-    - test -e $PREFIX/lib/libsox_static.a       # [unix]
-    - test -e $PREFIX/lib/libsox.so      # [linux]
-    - test -e $PREFIX/lib/libsox.dylib   # [osx]
-    - otool -L $PREFIX/lib/libsox.dylib  # [osx]
-    - sox --help  # [win]
-    - sox --help |grep "FILE FORMATS" | grep mp3  # [not win]
-    - soxi --help |grep "Usage[:] soxi"  # [not win]
+    # shared libs
+    - test -f $PREFIX/lib/libsox.so                 # [linux]
+    - test -f $PREFIX/lib/libsox.dylib              # [osx]
+    - otool -L $PREFIX/lib/libsox.dylib             # [osx]
+    - if not exist %LIBRARY_LIB%\libsox.lib exit 1  # [win]
+    - if not exist %LIBRARY_BIN%\libsox.dll exit 1  # [win]
+
+    # absence of static libraries
+    - test ! -f $PREFIX/lib/libsox.a                # [unix]
+    - test ! -f $PREFIX/lib/libsox_static.a         # [unix]
+
+    # headers
+    - test -f $PREFIX/include/sox.h                 # [unix]
+    - if not exist %LIBRARY_INC%\sox.h exit 1       # [win]
+
+    # binaries
+    - sox --help                                    # [win]
+    - sox --help | grep "FILE FORMATS" | grep mp3   # [not win]
+    - soxi --help | grep "Usage[:] soxi"            # [not win]
 
 about:
   home: http://sox.sourceforge.net/
