@@ -3,25 +3,20 @@ MACOSX_DEPLOYMENT_TARGET:
 c_compiler:
 - clang
 c_compiler_version:
-- '11'
+- '14'
 channel_sources:
 - conda-forge
 channel_targets:
 - conda-forge main
 libpng:
 - '1.6'
+libsndfile:
+- '1.1'
 macos_machine:
 - arm64-apple-darwin20.0.0
-pin_run_as_build:
-  libpng:
-    max_pin: x.x
-  xz:
-    max_pin: x.x
-  zlib:
-    max_pin: x.x
 target_platform:
 - osx-arm64
 xz:
-- '5.2'
+- '5'
 zlib:
 - '1.2'
