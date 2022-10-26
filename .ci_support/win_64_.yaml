@@ -6,16 +6,11 @@ channel_targets:
 - conda-forge main
 libpng:
 - '1.6'
-pin_run_as_build:
-  libpng:
-    max_pin: x.x
-  xz:
-    max_pin: x.x
-  zlib:
-    max_pin: x.x
+libsndfile:
+- '1.1'
 target_platform:
 - win-64
 xz:
-- '5.2'
+- '5'
 zlib:
 - '1.2'
