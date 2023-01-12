@@ -11,7 +11,7 @@ channel_targets:
 libpng:
 - '1.6'
 libsndfile:
-- '1.1'
+- '1.2'
 macos_machine:
 - x86_64-apple-darwin13.4.0
 target_platform:

@@ -7,7 +7,7 @@ channel_targets:
 libpng:
 - '1.6'
 libsndfile:
-- '1.1'
+- '1.2'
 target_platform:
 - win-64
 xz:
