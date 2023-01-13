@@ -1,7 +1,7 @@
 c_compiler:
 - gcc
 c_compiler_version:
-- '10'
+- '11'
 cdt_name:
 - cos6
 channel_sources:
@@ -13,7 +13,7 @@ docker_image:
 libpng:
 - '1.6'
 libsndfile:
-- '1.1'
+- '1.2'
 target_platform:
 - linux-64
 xz:
