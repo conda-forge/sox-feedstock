@@ -38,6 +38,7 @@ requirements:
     - speex  # [linux]
     - lame
     - mad  # [not win]
+    - libmad  # [win]
 
   run:
     - libpng
@@ -45,6 +46,7 @@ requirements:
     - xz
     - lame
     - mad  # [not win]
+    - libmad  # [win]
 
 
 test:
