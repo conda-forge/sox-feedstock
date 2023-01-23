@@ -11,7 +11,7 @@ source:
   patches:
     # Incorporates changes from https://github.com/dmkrepo/libsox to fix building on VS2015+ on windows
     - patches/0001-cmake-windows.patch
-    - patches/0002-MP3-support-on-windows.patch
+    - patches/0002-MP3-support-on-windows.patch  # [win]
 
 build:
   number: 1018
