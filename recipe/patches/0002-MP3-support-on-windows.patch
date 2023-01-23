@@ -1,0 +1,33 @@
+From b5ad62c842bdb65ec88f8097c692c4b1de20f2ad Mon Sep 17 00:00:00 2001
+From: Michael McAuliffe <michael.e.mcauliffe@gmail.com>
+Date: Sun, 22 Jan 2023 16:31:47 -0800
+Subject: [PATCH] Updates for getting MP3 support on windows
+
+---
+ CMakeLists.txt | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1059262..b2889f4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -135,13 +135,13 @@ optional(HAVE_SNDIO sndio.h sndio sio_open sndio)
+ optional(HAVE_AO ao/ao.h ao ao_play ao)
+ optional(HAVE_FLAC FLAC/all.h FLAC FLAC__stream_encoder_new flac)
+ optional(HAVE_MAD_H mad.h mad mad_stream_buffer mp3)
+-optional(HAVE_LAME_LAME_H lame/lame.h mp3lame lame_get_lametag_frame mp3)
++optional(HAVE_LAME_LAME_H lame/lame.h libmp3lame lame_get_lametag_frame mp3)
+ if (NOT HAVE_LAME_LAME_H)
+-  optional(HAVE_LAME_LAME_H lame.h mp3lame lame_get_lametag_frame mp3)
++  optional(HAVE_LAME_LAME_H lame.h libmp3lame lame_get_lametag_frame mp3)
+ endif (NOT HAVE_LAME_LAME_H)
+ optional(HAVE_TWOLAME_H twolame.h twolame twolame_init mp3)
+ optional(HAVE_MAGIC magic.h magic magic_open "")
+-optional2(HAVE_PNG png.h png png_set_rows z uncompress spectrogram)
++optional2(HAVE_PNG png.h libpng png_set_rows z uncompress spectrogram)
+ if (HAVE_PNG)
+   check_library_exists(z uncompress "" spectrogram1)
+   if (${spectrogram1})
+-- 
+2.25.1
+
