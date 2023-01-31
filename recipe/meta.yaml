@@ -10,10 +10,11 @@ source:
   md5: d04fba2d9245e661f245de0577f48a33
   patches:
     # Incorporates changes from https://github.com/dmkrepo/libsox to fix building on VS2015+ on windows
-    - cmake.patch
+    - patches/0001-cmake-windows.patch
+    - patches/0002-MP3-support-on-windows.patch  # [win]
 
 build:
-  number: 1017
+  number: 1018
   detect_binary_files_with_prefix: true
   run_exports:
     # https://abi-laboratory.pro/tracker/timeline/sox/
@@ -35,15 +36,17 @@ requirements:
     - libflac
     - libopus
     - speex  # [linux]
-    - lame  # [not win]
+    - lame
     - mad  # [not win]
+    - libmad  # [win]
 
   run:
     - libpng
     - zlib
     - xz
-    - lame  # [not win]
+    - lame
     - mad  # [not win]
+    - libmad  # [win]
 
 
 test:

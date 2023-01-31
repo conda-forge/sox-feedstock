@@ -1,0 +1,81 @@
+From 9acfd34b1506af64a52ba8523494b8a49ab12b64 Mon Sep 17 00:00:00 2001
+From: Michael McAuliffe <michael.e.mcauliffe@gmail.com>
+Date: Sun, 22 Jan 2023 16:31:47 -0800
+Subject: [PATCH] Updates for getting MP3 support on windows
+
+---
+ CMakeLists.txt | 19 ++++++++++++-------
+ src/mp3.c      |  2 +-
+ 2 files changed, 13 insertions(+), 8 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1059262..ae829c3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -3,14 +3,16 @@ include(CheckIncludeFiles)
+ include(CheckFunctionExists)
+ include(CheckLibraryExists)
+ 
+-project(sox C)
++project(sox)
+ 
+ include_directories(${CMAKE_INSTALL_INCLUDEDIR})
+ include_directories(${CMAKE_INSTALL_INCLUDEDIR}/opus)
++include_directories(${CMAKE_INSTALL_INCLUDEDIR}/libmad)
+ message(STATUS "Added ${CMAKE_INSTALL_INCLUDEDIR} to include path")
+ link_directories(${CMAKE_INSTALL_LIBDIR})
+ message(STATUS "Added ${CMAKE_INSTALL_LIBDIR} to lib path")
+ 
++add_definitions(-DFPM_64BIT)
+ option(BUILD_SHARED_LIBS "Build libsox as a shared library" ON)
+ 
+ option(BUILD_STATIC_LIBS "Build libsox as a static library" ON)
+@@ -134,14 +136,17 @@ optional(HAVE_ID3TAG id3tag.h id3tag id3_file_open "")
+ optional(HAVE_SNDIO sndio.h sndio sio_open sndio)
+ optional(HAVE_AO ao/ao.h ao ao_play ao)
+ optional(HAVE_FLAC FLAC/all.h FLAC FLAC__stream_encoder_new flac)
+-optional(HAVE_MAD_H mad.h mad mad_stream_buffer mp3)
+-optional(HAVE_LAME_LAME_H lame/lame.h mp3lame lame_get_lametag_frame mp3)
++#optional(HAVE_MAD_H libmad/mad.h libmad mad_stream_buffer mp3)
++set(HAVE_MAD_H 1)
++set(optional_srcs ${optional_srcs} mp3)
++set(optional_libs ${optional_libs} libmad)
++optional(HAVE_LAME_LAME_H lame/lame.h libmp3lame lame_get_lametag_frame mp3)
+ if (NOT HAVE_LAME_LAME_H)
+-  optional(HAVE_LAME_LAME_H lame.h mp3lame lame_get_lametag_frame mp3)
++  optional(HAVE_LAME_LAME_H lame.h libmp3lame lame_get_lametag_frame mp3)
+ endif (NOT HAVE_LAME_LAME_H)
+ optional(HAVE_TWOLAME_H twolame.h twolame twolame_init mp3)
+ optional(HAVE_MAGIC magic.h magic magic_open "")
+-optional2(HAVE_PNG png.h png png_set_rows z uncompress spectrogram)
++optional2(HAVE_PNG png.h libpng png_set_rows z uncompress spectrogram)
+ if (HAVE_PNG)
+   check_library_exists(z uncompress "" spectrogram1)
+   if (${spectrogram1})
+@@ -177,8 +182,8 @@ if (HAVE_LAME_LAME_H OR HAVE_MAD_H)
+   set(HAVE_MP3 1)
+ endif (HAVE_LAME_LAME_H OR HAVE_MAD_H)
+ 
+-set(CMAKE_REQUIRED_LIBRARIES mp3lame m)
+-check_function_exists("lame_set_VBR_quality" HAVE_LAME_SET_VBR_QUALITY)
++set(CMAKE_REQUIRED_LIBRARIES libmp3lame m)
++check_library_exists(libmp3lame "lame_set_VBR_quality" "" HAVE_LAME_SET_VBR_QUALITY)
+ 
+ if (HAVE_SUN_AUDIOIO_H OR HAVE_SYS_AUDIOIO_H)
+   set(HAVE_SUN_AUDIO 1)
+diff --git a/src/mp3.c b/src/mp3.c
+index 883e59e..b0f11b8 100644
+--- a/src/mp3.c
++++ b/src/mp3.c
+@@ -24,7 +24,7 @@
+ #if defined(HAVE_MAD_H) || defined(HAVE_LAME) || defined(HAVE_TWOLAME)
+ 
+ #ifdef HAVE_MAD_H
+-#include <mad.h>
++#include <libmad/mad.h>
+ #endif
+ 
+ #if defined(HAVE_LAME_LAME_H)
+-- 
+2.25.1
+
