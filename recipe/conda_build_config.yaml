@@ -1,4 +1,6 @@
-c_compiler:                    # [win]
-- vs2017                       # [win]
-cxx_compiler:                  # [win]
-- vs2017                       # [win]
+# upstream sox not yet ready for stricter clang; runs into
+# error: incompatible function pointer types initializing 'sox_format_handler_seek'
+c_compiler_version:     # [osx]
+  - 15                  # [osx]
+cxx_compiler_version:   # [osx]
+  - 15                  # [osx]
