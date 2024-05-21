@@ -26,6 +26,7 @@ requirements:
     - make  # [not win]
     - pkg-config
     - {{ compiler('c') }}
+    - {{ stdlib('c') }}
   host:
     - libpng
     - zlib
