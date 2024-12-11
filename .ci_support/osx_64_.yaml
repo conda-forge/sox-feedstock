@@ -14,15 +14,17 @@ channel_sources:
 - conda-forge
 channel_targets:
 - conda-forge main
+liblzma_devel:
+- '5'
 libpng:
 - '1.6'
 libsndfile:
 - '1.2'
 macos_machine:
 - x86_64-apple-darwin13.4.0
+sox:
+- 14.4.2
 target_platform:
 - osx-64
-xz:
-- '5'
 zlib:
-- '1.2'
+- '1'
