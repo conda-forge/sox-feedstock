@@ -13,7 +13,7 @@ source:
     - patches/0002-MP3-support-on-windows.patch  # [win]
 
 build:
-  number: 1019
+  number: 1020
   detect_binary_files_with_prefix: true
   run_exports:
     # https://abi-laboratory.pro/tracker/timeline/sox/
@@ -30,7 +30,7 @@ requirements:
   host:
     - libpng
     - zlib
-    - xz
+    - liblzma-devel
     - libsndfile
     - libvorbis
     - libflac
@@ -43,7 +43,7 @@ requirements:
   run:
     - libpng
     - zlib
-    - xz
+    - liblzma-devel
     - lame
     - mad  # [not win]
     - libmad  # [win]
