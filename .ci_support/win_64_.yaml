@@ -1,11 +1,13 @@
 c_compiler:
-- vs2019
+- vs2022
 c_stdlib:
 - vs
 channel_sources:
 - conda-forge
 channel_targets:
 - conda-forge main
+libflac:
+- '1.5'
 liblzma_devel:
 - '5'
 libpng:
