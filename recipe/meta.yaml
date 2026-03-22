@@ -13,7 +13,7 @@ source:
     - patches/0002-MP3-support-on-windows.patch  # [win]
 
 build:
-  number: 1020
+  number: 1021
   detect_binary_files_with_prefix: true
   run_exports:
     # https://abi-laboratory.pro/tracker/timeline/sox/
